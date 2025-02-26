@@ -4,7 +4,7 @@ import hashlib
 import typing
 import platform
 import requests
-from .capcha_ocr import CapchaOCR, CapchaProcessing
+from .capcha_ocr import CaptchaProcessing
 from .wasm_helper import wasm_encrypt
 
 headers_default = {
@@ -42,12 +42,12 @@ class MBBank:
         username (str): MBBank Account Username
         password (str): MBBank Account Password
         proxy (str, optional): Proxy url. Example: "http://127.0.0.1:8080". Defaults to None.
-        ocr_class (CapchaProcessing, optional): CapchaProcessing class. Defaults to TesseractOCR().
+        ocr_class (CaptchaProcessing, optional): CaptchaProcessing class. Defaults to TesseractOCR().
     """
     deviceIdCommon = f'i1vzyjp5-mbib-0000-0000-{get_now_time()}'
     FPR = "c7a1beebb9400375bb187daa33de9659"
 
-    def __init__(self, *, username, password, proxy=None, ocr_class=None):
+    def __init__(self, *, username: str, password: str, ocr_class: CaptchaProcessing, proxy: str=None):
         self.__userid = username
         self.__password = password
         self.__wasm_cache = None
@@ -56,11 +56,12 @@ class MBBank:
             self.proxy = {proxy_protocol: proxy}
         else:
             self.proxy = {}
-        self.ocr_class = CapchaOCR()
+            
         if ocr_class is not None:
-            if not isinstance(ocr_class, CapchaProcessing):
-                raise ValueError("ocr_class must be instance of CapchaProcessing")
             self.ocr_class = ocr_class
+        else:
+            raise ValueError("ocr_class must be instance of CaptchaProcessing")
+        
         self.sessionId = None
         self._userinfo = None
         self._temp = {}
